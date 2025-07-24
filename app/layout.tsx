@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { Geist, Geist_Mono } from 'next/font/google'
-import { Providers } from '~/app/providers'
-import { Header } from '~/components/layouts/Header'
 import './globals.css'
 
 const geistSans = Geist({
@@ -24,10 +22,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
-        <Providers themeProps={{ attribute: 'class', defaultTheme: 'dark' }}>
-          <Header />
-          {children}
-        </Providers>
+        {children}
       </body>
     </html>
   )

@@ -23,9 +23,7 @@ const ThemeSwitcher = memo(() => {
     handleMount()
   }, [handleMount])
 
-  const toggleTheme = useCallback(() => {
-    setTheme(theme === 'dark' ? 'light' : 'dark')
-  }, [theme, setTheme])
+  const toggleTheme = useCallback(() => setTheme(theme === 'dark' ? 'light' : 'dark'), [theme, setTheme])
 
   const iconElement = useMemo(() => {
     if (!mounted) {
@@ -50,7 +48,7 @@ ThemeSwitcher.displayName = 'ThemeSwitcher'
 
 export const Header = memo(() => {
   return (
-    <header className="h-14 px-5 flex items-center border-b border-default space-x-2">
+    <header className="h-[var(--layout-header-height)] px-5 flex items-center border-b border-default-200 space-x-2">
       <div className="flex items-center space-x-0.5 w-48">
         <Button isIconOnly radius="full" variant="light">
           <MenuCloseLeft className="text-foreground-500" size={20} />
