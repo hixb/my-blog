@@ -4,7 +4,7 @@ import { Button } from '@heroui/react'
 
 export default function Home() {
   return (
-    <div className="">
+    <div className="h-24">
       <Button>hello</Button>
     </div>
   )
