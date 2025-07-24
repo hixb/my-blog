@@ -7,18 +7,18 @@ function FolderComponent({ size = 24, width, height, ...props }: IconProps) {
   return (
     <svg {...IntegrationProp({ size, width, height, ...props })}>
       <path
-        d="M16.3655 20.9874C19.7213 20.9874 21.6984 19.0094 21.6984 15.6546L21.7246 10.9989C21.7246 7.57609 20.483 5.86421 17.1194 5.86421H14.4661C13.7928 5.86227 13.1594 5.54554 12.7542 5.00827L11.8983 3.86961C11.4941 3.33137 10.8607 3.01367 10.1874 3.01367H8.31229C4.95654 3.01367 3.72461 4.99079 3.72461 8.34168V15.6546C3.72461 19.0094 5.70561 20.9874 9.06913 20.9874H16.3655Z"
-        stroke={props.stroke || 'currentColor'}
+        d="M14.4297 14.5508H9.42969"
+        stroke="hsl(var(--heroui-primary) / 1)"
         strokeLinecap="round"
         strokeLinejoin="round"
+        strokeMiterlimit="10"
         strokeWidth="1.5"
       >
       </path>
       <path
-        d="M16.4416 15.7207H12.498"
-        stroke="hsl(var(--heroui-primary) / 1)"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        d="M22 11V17C22 21 21 22 17 22H7C3 22 2 21 2 17V7C2 3 3 2 7 2H8.5C10 2 10.33 2.44 10.9 3.2L12.4 5.2C12.78 5.7 13 6 14 6H17C21 6 22 7 22 11Z"
+        stroke={props.stroke || 'currentColor'}
+        strokeMiterlimit="10"
         strokeWidth="1.5"
       >
       </path>

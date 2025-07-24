@@ -75,7 +75,7 @@ export const Header = memo(() => {
   const { isCollapseSidebar, setIsCollapseSidebar } = useCommonStore()
 
   return (
-    <header className="h-[var(--layout-header-height)] px-5 flex items-center border-b border-default-200 space-x-2">
+    <header className="h-[var(--layout-header-height)] px-5 flex items-center border-b border-divider space-x-2">
       <div className="flex items-center space-x-0.5 w-48">
         <Button isIconOnly onPress={() => setIsCollapseSidebar(!isCollapseSidebar)} radius="full" variant="light">
           <AsideSwitcher isCollapseSidebar={isCollapseSidebar} />

@@ -2,21 +2,27 @@
 
 import type { Variants } from 'framer-motion'
 import type { ReactNode } from 'react'
+import { Link } from '@heroui/link'
 import { Button, Listbox, ListboxItem, ScrollShadow, Tooltip } from '@heroui/react'
 import clsx from 'clsx'
 import { AnimatePresence, motion } from 'framer-motion'
-import Link from 'next/link'
+import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 import { memo, useCallback, useState } from 'react'
 import { ArrowDown } from '~/components/icons/ArrowDown'
 import { Folder } from '~/components/icons/Folder'
+import { FolderOpen } from '~/components/icons/FolderOpen'
+import { Github } from '~/components/icons/Github'
 import { Home } from '~/components/icons/Home'
+import { Plus } from '~/components/icons/Plus'
+import { X } from '~/components/icons/X'
 import { useCommonStore } from '~/stores/useCommon'
 
 interface NavTypes {
   [key: string]: {
     label: string
     startIcon: ReactNode
+    startOpenIcon?: ReactNode
     link?: string
     children?: { label: string, link: string }[]
   }
@@ -28,6 +34,7 @@ const navs: NavTypes[] = [
     category: {
       label: 'Category',
       startIcon: <Folder className="min-w-max" />,
+      startOpenIcon: <FolderOpen className="min-w-max" />,
       children: [
         { label: 'Web', link: '/category/web' },
       ],
@@ -41,7 +48,7 @@ const textVariants: Variants = {
 }
 
 export const Aside = memo(() => {
-  const { isCollapseSidebar } = useCommonStore()
+  const { isCollapseSidebar, setIsCollapseSidebar } = useCommonStore()
   const pathname = usePathname()
 
   const [expandedItems, setExpandedItems] = useState<Set<string>>(() => new Set())
@@ -67,14 +74,14 @@ export const Aside = memo(() => {
   return (
     <motion.aside
       animate={isCollapseSidebar ? 'expanded' : 'collapsed'}
-      className="border-r border-default-200 p-5 h-[calc(100vh-var(--layout-header-height))] overflow-hidden"
+      className="border-r flex flex-col border-divider h-[calc(100vh-var(--layout-header-height))] overflow-hidden"
       initial={false}
       variants={{
         expanded: { width: 'var(--layout-aside-width)', transition: { duration: 0.3, ease: 'easeInOut' } },
         collapsed: { width: '80px', transition: { duration: 0.3, ease: 'easeInOut' } },
       }}
     >
-      <ScrollShadow className="overflow-y-auto h-full">
+      <ScrollShadow className="overflow-y-auto overflow-x-hidden h-full flex-1 p-5">
         {navs.map(nav => (
           Object.values(nav).map((child) => {
             const isExpanded = expandedItems.has(child.label)
@@ -87,13 +94,16 @@ export const Aside = memo(() => {
                   content={
                     !isCollapseSidebar && child.children
                       ? (
-                          <Listbox aria-label="Actions">
+                          <Listbox
+                            aria-label="Actions"
+                            topContent={<p className="text-foreground text-xs">{child.label}</p>}
+                          >
                             {child.children.map((subChild) => {
                               const subItemIsActive = isActive(subChild.link)
 
                               return (
                                 <ListboxItem
-                                  as={Link}
+                                  as={NextLink}
                                   className={clsx('min-w-[200px]', subItemIsActive ? 'text-primary-foreground bg-primary' : null)}
                                   color="primary"
                                   href={subChild.link}
@@ -107,10 +117,10 @@ export const Aside = memo(() => {
                         )
                       : child.label
                   }
-                  placement={child.children ? 'right-start' : 'right'}
+                  placement={child.children && !isCollapseSidebar ? 'right-start' : 'right'}
                 >
                   <Button
-                    as={child.link ? Link : 'button'}
+                    as={child.link ? NextLink : 'button'}
                     className={clsx(
                       'text-xs overflow-hidden transition-all duration-200',
                       isCollapseSidebar ? 'justify-start' : 'justify-center min-w-max px-2',
@@ -133,7 +143,11 @@ export const Aside = memo(() => {
                     href={child.link}
                     onPress={child.children ? () => toggleExpanded(child.label) : undefined}
                     radius="sm"
-                    startContent={<div className="flex-shrink-0">{child.startIcon}</div>}
+                    startContent={(
+                      <div className="flex-shrink-0">
+                        {isExpanded && child.startOpenIcon ? child.startOpenIcon : child.startIcon}
+                      </div>
+                    )}
                     variant={itemIsActive || hasActiveChild ? 'flat' : 'light'}
                   >
                     <AnimatePresence>
@@ -169,11 +183,11 @@ export const Aside = memo(() => {
 
                         return (
                           <li
-                            className="relative before:content-[''] before:absolute before:w-4 before:h-12 before:bottom-1/2 before:rounded-bl-lg before:border-l before:border-b before:border-default"
+                            className="relative before:content-[''] before:absolute before:w-4 before:h-12 before:bottom-1/2 before:rounded-bl-lg before:border-l before:border-b before:border-divider"
                             key={subChild.label}
                           >
                             <Button
-                              as={Link}
+                              as={NextLink}
                               className="justify-start ml-4 w-[calc(100%_-_16px)] text-xs overflow-hidden"
                               fullWidth
                               href={subChild.link}
@@ -205,6 +219,46 @@ export const Aside = memo(() => {
           })
         ))}
       </ScrollShadow>
+      <div className="border-t bg-background space-y-1 border-divider py-2 w-full flex flex-col items-center">
+        {
+          !isCollapseSidebar
+            ? (
+                <Button
+                  isIconOnly
+                  onPress={() => setIsCollapseSidebar(!isCollapseSidebar)}
+                  radius="full"
+                  size="sm"
+                  variant="light"
+                >
+                  <Plus size={20} />
+                </Button>
+              )
+            : (
+                <>
+                  <Link
+                    as={NextLink}
+                    className="text-center"
+                    color="foreground"
+                    href="/"
+                    isExternal
+                    showAnchorIcon
+                    size="sm"
+                    underline="hover"
+                  >
+                    Sitemap
+                  </Link>
+                  <div className="flex items-center">
+                    <Button isIconOnly radius="full" size="sm" variant="light">
+                      <X size={20} />
+                    </Button>
+                    <Button isIconOnly radius="full" size="sm" variant="light">
+                      <Github size={20} />
+                    </Button>
+                  </div>
+                </>
+              )
+        }
+      </div>
     </motion.aside>
   )
 })
