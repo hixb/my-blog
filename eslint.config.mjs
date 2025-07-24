@@ -1,16 +1,29 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import antfu from '@antfu/eslint-config'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+export default antfu({
+  react: true,
+  extends: ['next/core-web-vitals', 'next/typescript'],
+  rules: {
+    '@typescript-eslint/no-namespace': 'off',
+    'jsx-quotes': ['error', 'prefer-double'],
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+    'import/no-duplicates': 'error',
+    'import/prefer-default-export': 'off',
 
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-];
+    'no-void': 'off',
 
-export default eslintConfig;
+    'no-irregular-whitespace': 'off',
+    'vue/no-irregular-whitespace': 'off',
+    'n/prefer-global/process': 'off',
+
+    'react-hooks/exhaustive-deps': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    'react-refresh/only-export-components': 'off',
+    'react/no-nested-components': 'off',
+
+    'react/no-context-provider': 'off',
+    'react/no-forward-ref': 'off',
+
+    'style/jsx-sort-props': 'error',
+  },
+})
