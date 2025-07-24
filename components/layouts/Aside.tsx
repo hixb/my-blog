@@ -1,7 +1,8 @@
 'use client'
 
+import type { Variants } from 'framer-motion'
 import type { ReactNode } from 'react'
-import { Button, ScrollShadow } from '@heroui/react'
+import { Button, Listbox, ListboxItem, ScrollShadow, Tooltip } from '@heroui/react'
 import clsx from 'clsx'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
@@ -10,6 +11,7 @@ import { memo, useCallback, useState } from 'react'
 import { ArrowDown } from '~/components/icons/ArrowDown'
 import { Folder } from '~/components/icons/Folder'
 import { Home } from '~/components/icons/Home'
+import { useCommonStore } from '~/stores/useCommon'
 
 interface NavTypes {
   [key: string]: {
@@ -22,10 +24,10 @@ interface NavTypes {
 
 const navs: NavTypes[] = [
   {
-    home: { label: 'Home', link: '/', startIcon: <Home /> },
+    home: { label: 'Home', link: '/', startIcon: <Home className="min-w-max" /> },
     category: {
       label: 'Category',
-      startIcon: <Folder />,
+      startIcon: <Folder className="min-w-max" />,
       children: [
         { label: 'Web', link: '/category/web' },
       ],
@@ -33,7 +35,13 @@ const navs: NavTypes[] = [
   },
 ]
 
+const textVariants: Variants = {
+  visible: { opacity: 1, x: 0, transition: { duration: 0.25, delay: 0.1, ease: [0.4, 0.0, 0.2, 1] } },
+  hidden: { opacity: 0, x: -10, transition: { duration: 0.2, ease: [0.4, 0.0, 1, 1] } },
+}
+
 export const Aside = memo(() => {
+  const { isCollapseSidebar } = useCommonStore()
   const pathname = usePathname()
 
   const [expandedItems, setExpandedItems] = useState<Set<string>>(() => new Set())
@@ -57,8 +65,14 @@ export const Aside = memo(() => {
   }, [pathname])
 
   return (
-    <aside
-      className="w-[var(--layout-aside-width)] border-r border-default-200 p-5 h-[calc(100vh-var(--layout-header-height))] overflow-hidden"
+    <motion.aside
+      animate={isCollapseSidebar ? 'expanded' : 'collapsed'}
+      className="border-r border-default-200 p-5 h-[calc(100vh-var(--layout-header-height))] overflow-hidden"
+      initial={false}
+      variants={{
+        expanded: { width: 'var(--layout-aside-width)', transition: { duration: 0.3, ease: 'easeInOut' } },
+        collapsed: { width: '80px', transition: { duration: 0.3, ease: 'easeInOut' } },
+      }}
     >
       <ScrollShadow className="overflow-y-auto h-full">
         {navs.map(nav => (
@@ -69,32 +83,77 @@ export const Aside = memo(() => {
 
             return (
               <nav className="mb-2" key={child.label}>
-                <Button
-                  as={child.link ? Link : 'button'}
-                  className="justify-start text-xs"
-                  color="default"
-                  endContent={
-                    child.children
+                <Tooltip
+                  content={
+                    !isCollapseSidebar && child.children
                       ? (
-                          <ArrowDown
-                            className={clsx('transition-all ml-auto', isExpanded ? 'rotate-180' : null)}
-                            size={14}
-                          />
+                          <Listbox aria-label="Actions">
+                            {child.children.map((subChild) => {
+                              const subItemIsActive = isActive(subChild.link)
+
+                              return (
+                                <ListboxItem
+                                  as={Link}
+                                  className={clsx('min-w-[200px]', subItemIsActive ? 'text-primary-foreground bg-primary' : null)}
+                                  color="primary"
+                                  href={subChild.link}
+                                  key={subChild.label}
+                                >
+                                  {subChild.label}
+                                </ListboxItem>
+                              )
+                            })}
+                          </Listbox>
                         )
-                      : null
+                      : child.label
                   }
-                  fullWidth
-                  href={child.link}
-                  onPress={child.children ? () => toggleExpanded(child.label) : undefined}
-                  radius="sm"
-                  startContent={child.startIcon}
-                  variant={itemIsActive || hasActiveChild ? 'flat' : 'light'}
+                  placement={child.children ? 'right-start' : 'right'}
                 >
-                  {child.label}
-                </Button>
+                  <Button
+                    as={child.link ? Link : 'button'}
+                    className={clsx(
+                      'text-xs overflow-hidden transition-all duration-200',
+                      isCollapseSidebar ? 'justify-start' : 'justify-center min-w-max px-2',
+                    )}
+                    color="default"
+                    endContent={
+                      child.children && isCollapseSidebar
+                        ? (
+                            <motion.div
+                              animate={{ rotate: isExpanded ? 180 : 0 }}
+                              className="ml-auto"
+                              transition={{ duration: 0.2 }}
+                            >
+                              <ArrowDown className="flex-shrink-0" size={14} />
+                            </motion.div>
+                          )
+                        : null
+                    }
+                    fullWidth={isCollapseSidebar}
+                    href={child.link}
+                    onPress={child.children ? () => toggleExpanded(child.label) : undefined}
+                    radius="sm"
+                    startContent={<div className="flex-shrink-0">{child.startIcon}</div>}
+                    variant={itemIsActive || hasActiveChild ? 'flat' : 'light'}
+                  >
+                    <AnimatePresence>
+                      {isCollapseSidebar && (
+                        <motion.span
+                          animate="visible"
+                          className="whitespace-nowrap"
+                          exit="hidden"
+                          initial="hidden"
+                          variants={textVariants}
+                        >
+                          {child.label}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </Button>
+                </Tooltip>
 
                 <AnimatePresence>
-                  {child?.children && isExpanded && (
+                  {child?.children && isExpanded && isCollapseSidebar && (
                     <motion.ul
                       animate="visible"
                       className="pl-4 overflow-hidden"
@@ -115,13 +174,25 @@ export const Aside = memo(() => {
                           >
                             <Button
                               as={Link}
-                              className="justify-start ml-4 w-[calc(100%_-_16px)] text-xs"
+                              className="justify-start ml-4 w-[calc(100%_-_16px)] text-xs overflow-hidden"
                               fullWidth
                               href={subChild.link}
                               radius="sm"
                               variant={subItemIsActive ? 'flat' : 'light'}
                             >
-                              {subChild.label}
+                              <AnimatePresence>
+                                {isCollapseSidebar && (
+                                  <motion.span
+                                    animate="visible"
+                                    className="whitespace-nowrap"
+                                    exit="hidden"
+                                    initial="hidden"
+                                    variants={textVariants}
+                                  >
+                                    {subChild.label}
+                                  </motion.span>
+                                )}
+                              </AnimatePresence>
                             </Button>
                           </li>
                         )
@@ -134,7 +205,7 @@ export const Aside = memo(() => {
           })
         ))}
       </ScrollShadow>
-    </aside>
+    </motion.aside>
   )
 })
 
