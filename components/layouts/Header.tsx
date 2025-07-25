@@ -36,14 +36,21 @@ const ThemeSwitcher = memo(() => {
 
   const iconElement = useMemo(() => {
     if (!mounted) {
-      return <Spinner color="default" size="sm" variant="gradient" />
+      return <Spinner aria-label="Loading theme switcher" color="default" size="sm" variant="gradient" />
     }
 
-    return theme === 'dark' ? <Sun /> : <Moon />
+    return theme === 'dark' ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />
   }, [mounted, theme])
 
   return (
-    <Button isIconOnly onPress={toggleTheme} radius="full" variant="light">
+    <Button
+      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+      isIconOnly
+      onPress={toggleTheme}
+      radius="full"
+      title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+      variant="light"
+    >
       {iconElement}
     </Button>
   )
@@ -75,14 +82,24 @@ export const Header = memo(() => {
   const { isCollapseSidebar, setIsCollapseSidebar } = useCommonStore()
 
   return (
-    <header className="h-[var(--layout-header-height)] px-5 flex items-center border-b border-divider space-x-2">
+    <header
+      className="h-[var(--layout-header-height)] px-5 flex items-center border-b border-divider space-x-2"
+      role="banner"
+    >
       <div className="flex items-center space-x-0.5 w-48">
-        <Button isIconOnly onPress={() => setIsCollapseSidebar(!isCollapseSidebar)} radius="full" variant="light">
+        <Button
+          aria-label="Toggle sidebar navigation"
+          isIconOnly
+          onPress={() => setIsCollapseSidebar(!isCollapseSidebar)}
+          radius="full"
+          title="Toggle sidebar"
+          variant="light"
+        >
           <AsideSwitcher isCollapseSidebar={isCollapseSidebar} />
         </Button>
         <div className="flex items-center">
           <Image
-            alt=""
+            alt="Website logo"
             as={NextImage}
             className="w-10 h-10"
             height={40}
@@ -91,26 +108,48 @@ export const Header = memo(() => {
             src="https://www.fineshopdesign.com/fineshop-logo-square.svg"
             width={40}
           />
-          <span className="m-2 inline-block">Hello</span>
+          <h1 className="m-2 inline-block text-lg font-semibold sr-only">
+            My Blog - Personal Technology Blog
+          </h1>
+          <span aria-hidden="true" className="m-2 inline-block">Hello</span>
         </div>
       </div>
+
       <div className="flex-1 flex items-center justify-end md:justify-between h-full">
-        <Input
-          className="max-w-2xs hidden md:block"
-          placeholder="Looking for something?"
-          radius="full"
-          startContent={<Search className="text-default-400" />}
-          variant="bordered"
-        />
-        <div className="flex items-center">
-          <Button className="md:hidden" isIconOnly radius="full" variant="light">
-            <Search />
+        <search className="search-container">
+          <Input
+            aria-label="Search site content"
+            className="max-w-2xs hidden md:block"
+            placeholder="Search articles and posts..."
+            radius="full"
+            role="searchbox"
+            startContent={<Search aria-hidden="true" className="text-default-400" />}
+            variant="bordered"
+          />
+        </search>
+
+        <nav aria-label="User menu" className="flex items-center" role="navigation">
+          <Button
+            aria-label="Open search"
+            className="md:hidden"
+            isIconOnly
+            radius="full"
+            title="Search"
+            variant="light"
+          >
+            <Search aria-hidden="true" />
           </Button>
           <ThemeSwitcher />
-          <Button isIconOnly radius="full" variant="light">
-            <User />
+          <Button
+            aria-label="User account menu"
+            isIconOnly
+            radius="full"
+            title="Account"
+            variant="light"
+          >
+            <User aria-hidden="true" />
           </Button>
-        </div>
+        </nav>
       </div>
     </header>
   )

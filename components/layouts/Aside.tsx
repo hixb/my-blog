@@ -3,7 +3,7 @@
 import type { Variants } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { Link } from '@heroui/link'
-import { Button, Listbox, ListboxItem, ScrollShadow, Tooltip } from '@heroui/react'
+import { Button, Listbox, ListboxItem, Tooltip } from '@heroui/react'
 import clsx from 'clsx'
 import { AnimatePresence, motion } from 'framer-motion'
 import NextLink from 'next/link'
@@ -43,8 +43,8 @@ const navs: NavTypes[] = [
 ]
 
 const textVariants: Variants = {
-  visible: { opacity: 1, x: 0, transition: { duration: 0.25, delay: 0.1, ease: [0.4, 0.0, 0.2, 1] } },
-  hidden: { opacity: 0, x: -10, transition: { duration: 0.2, ease: [0.4, 0.0, 1, 1] } },
+  expanded: { opacity: 1, x: 0, transition: { duration: 0.3, ease: 'easeInOut' } },
+  collapsed: { opacity: 0, x: -20, transition: { duration: 0.3, ease: 'easeInOut' } },
 }
 
 export const Aside = memo(() => {
@@ -81,7 +81,11 @@ export const Aside = memo(() => {
         collapsed: { width: '80px', transition: { duration: 0.3, ease: 'easeInOut' } },
       }}
     >
-      <ScrollShadow className="overflow-y-auto overflow-x-hidden h-full flex-1 p-5">
+      <nav
+        aria-label="Main site navigation"
+        className="overflow-y-auto overflow-x-hidden h-full flex-1 p-5"
+        role="navigation"
+      >
         {navs.map(nav => (
           Object.values(nav).map((child) => {
             const isExpanded = expandedItems.has(child.label)
@@ -89,7 +93,7 @@ export const Aside = memo(() => {
             const itemIsActive = isActive(child.link)
 
             return (
-              <nav className="mb-2" key={child.label}>
+              <article className="mb-2" key={child.label}>
                 <Tooltip
                   content={
                     !isCollapseSidebar && child.children
@@ -150,29 +154,31 @@ export const Aside = memo(() => {
                     )}
                     variant={itemIsActive || hasActiveChild ? 'flat' : 'light'}
                   >
-                    <AnimatePresence>
-                      {isCollapseSidebar && (
-                        <motion.span
-                          animate="visible"
-                          className="whitespace-nowrap"
-                          exit="hidden"
-                          initial="hidden"
-                          variants={textVariants}
-                        >
-                          {child.label}
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
+                    {
+                      isCollapseSidebar
+                        ? (
+                            <motion.span
+                              animate={isCollapseSidebar ? 'expanded' : 'collapsed'}
+                              className="ml-2 whitespace-nowrap"
+                              variants={textVariants}
+                            >
+                              {child.label}
+                            </motion.span>
+                          )
+                        : null
+                    }
                   </Button>
                 </Tooltip>
 
                 <AnimatePresence>
                   {child?.children && isExpanded && isCollapseSidebar && (
-                    <motion.ul
+                    <motion.section
                       animate="visible"
+                      aria-label={`${child.label} submenu`}
                       className="pl-4 overflow-hidden"
                       exit="hidden"
                       initial="hidden"
+                      role="menu"
                       variants={{
                         hidden: { opacity: 0, height: 0, transition: { duration: 0.2 } },
                         visible: { opacity: 1, height: 'auto', transition: { duration: 0.3, ease: 'easeOut' } },
@@ -182,9 +188,10 @@ export const Aside = memo(() => {
                         const subItemIsActive = isActive(subChild.link)
 
                         return (
-                          <li
+                          <div
                             className="relative before:content-[''] before:absolute before:w-4 before:h-12 before:bottom-1/2 before:rounded-bl-lg before:border-l before:border-b before:border-divider"
                             key={subChild.label}
+                            role="menuitem"
                           >
                             <Button
                               as={NextLink}
@@ -194,32 +201,36 @@ export const Aside = memo(() => {
                               radius="sm"
                               variant={subItemIsActive ? 'flat' : 'light'}
                             >
-                              <AnimatePresence>
-                                {isCollapseSidebar && (
-                                  <motion.span
-                                    animate="visible"
-                                    className="whitespace-nowrap"
-                                    exit="hidden"
-                                    initial="hidden"
-                                    variants={textVariants}
-                                  >
-                                    {subChild.label}
-                                  </motion.span>
-                                )}
-                              </AnimatePresence>
+                              {
+                                isCollapseSidebar
+                                  ? (
+                                      <motion.span
+                                        animate={isCollapseSidebar ? 'expanded' : 'collapsed'}
+                                        className="whitespace-nowrap"
+                                        variants={textVariants}
+                                      >
+                                        {subChild.label}
+                                      </motion.span>
+                                    )
+                                  : null
+                              }
                             </Button>
-                          </li>
+                          </div>
                         )
                       })}
-                    </motion.ul>
+                    </motion.section>
                   )}
                 </AnimatePresence>
-              </nav>
+              </article>
             )
           })
         ))}
-      </ScrollShadow>
-      <div className="border-t bg-background space-y-1 border-divider py-2 w-full flex flex-col items-center">
+      </nav>
+
+      <footer
+        className="border-t bg-background space-y-1 border-divider py-2 w-full flex flex-col items-center"
+        role="contentinfo"
+      >
         {
           !isCollapseSidebar
             ? (
@@ -258,7 +269,7 @@ export const Aside = memo(() => {
                 </>
               )
         }
-      </div>
+      </footer>
     </motion.aside>
   )
 })
