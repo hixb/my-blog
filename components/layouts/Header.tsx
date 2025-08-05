@@ -108,10 +108,7 @@ export const Header = memo(() => {
             src="https://www.fineshopdesign.com/fineshop-logo-square.svg"
             width={40}
           />
-          <h1 className="m-2 inline-block text-lg font-semibold sr-only">
-            My Blog - Personal Technology Blog
-          </h1>
-          <span aria-hidden="true" className="m-2 inline-block">Hello</span>
+          <span aria-hidden="true" className="m-2 inline-block truncate">Xiaobing Zhu</span>
         </div>
       </div>
 
@@ -128,7 +125,7 @@ export const Header = memo(() => {
           />
         </search>
 
-        <nav aria-label="User menu" className="flex items-center" role="navigation">
+        <div aria-label="User menu" className="flex items-center" role="navigation">
           <Button
             aria-label="Open search"
             className="md:hidden"
@@ -149,7 +146,7 @@ export const Header = memo(() => {
           >
             <User aria-hidden="true" />
           </Button>
-        </nav>
+        </div>
       </div>
     </header>
   )

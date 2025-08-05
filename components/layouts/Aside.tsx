@@ -16,6 +16,7 @@ import { Github } from '~/components/icons/Github'
 import { Home } from '~/components/icons/Home'
 import { Plus } from '~/components/icons/Plus'
 import { X } from '~/components/icons/X'
+import {useIsMobile} from '~/hooks/useMobile'
 import { useCommonStore } from '~/stores/useCommon'
 
 interface NavTypes {
@@ -49,6 +50,7 @@ const textVariants: Variants = {
 
 export const Aside = memo(() => {
   const { isCollapseSidebar, setIsCollapseSidebar } = useCommonStore()
+  const {isMobile} = useIsMobile()
   const pathname = usePathname()
 
   const [expandedItems, setExpandedItems] = useState<Set<string>>(() => new Set())
@@ -74,7 +76,7 @@ export const Aside = memo(() => {
   return (
     <motion.aside
       animate={isCollapseSidebar ? 'expanded' : 'collapsed'}
-      className="border-r flex flex-col border-divider h-[calc(100vh-var(--layout-header-height))] overflow-hidden"
+      className={clsx('border-r flex flex-col border-divider h-[calc(100vh-var(--layout-header-height))] overflow-hidden', isMobile ? 'hidden' : null)}
       initial={false}
       variants={{
         expanded: { width: 'var(--layout-aside-width)', transition: { duration: 0.3, ease: 'easeInOut' } },
